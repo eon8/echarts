@@ -22048,7 +22048,7 @@ function () {
 
   DataStore.prototype.initData = function (provider, inputDimensions, dimValueGetter) {
     if ("development" !== 'production') {
-      assert(isFunction(provider.getItem) && isFunction(provider.count), 'Inavlid data provider.');
+      assert(isFunction(provider.getItem) && isFunction(provider.count), 'Invalid data provider.');
     }
 
     this._provider = provider; // Clear
@@ -42592,7 +42592,11 @@ function (_super) {
 
       if (isAreaChart) {
         polygon = this._newPolygon(points, stackedOnPoints);
-      } // NOTE: Must update _endLabel before setClipPath.
+      } // If areaStyle is removed
+      else if (polygon) {
+          lineGroup.remove(polygon);
+          polygon = this._polygon = null;
+        } // NOTE: Must update _endLabel before setClipPath.
 
 
       if (!isCoordSysPolar) {
@@ -49650,10 +49654,6 @@ function (_super) {
         nameTextStyle: iNameTextStyle,
         triggerEvent: triggerEvent
       }, false);
-
-      if (!showName) {
-        innerIndicatorOpt.name = '';
-      }
 
       if (isString(nameFormatter)) {
         var indName = innerIndicatorOpt.name;
@@ -83500,11 +83500,10 @@ function applyVisual(stateList, visualMappings, data, getValueState, scope, dime
   function eachItem(valueOrIndex, index) {
     dataIndex = dimension == null ? valueOrIndex // First argument is index
     : index;
-    var rawDataItem = data.getRawDataItem(dataIndex); // Consider performance
-    // @ts-ignore
+    var rawDataItem = data.getRawDataItem(dataIndex); // @ts-ignore
 
     if (rawDataItem && rawDataItem.visualMap === false) {
-      return;
+      valueOrIndex = NaN;
     }
 
     var valueState = getValueState.call(scope, valueOrIndex);
@@ -83551,14 +83550,13 @@ function incrementalApplyVisual(stateList, visualMappings, getValueState, dim) {
       var store = data.getStore();
 
       while ((dataIndex = params.next()) != null) {
-        var rawDataItem = data.getRawDataItem(dataIndex); // Consider performance
-        // @ts-ignore
+        var rawDataItem = data.getRawDataItem(dataIndex);
+        var value = NaN; // @ts-ignore
 
-        if (rawDataItem && rawDataItem.visualMap === false) {
-          continue;
+        if (!rawDataItem || rawDataItem.visualMap !== false) {
+          value = dim != null ? store.get(dimIndex, dataIndex) : dataIndex;
         }
 
-        var value = dim != null ? store.get(dimIndex, dataIndex) : dataIndex;
         var valueState = getValueState(value);
         var mappings = visualMappings[valueState];
         var visualTypes = visualTypesMap[valueState];
@@ -89330,8 +89328,8 @@ function (_super) {
         r: borderRadius
       },
       style: {
-        stroke: dataZoomModel.get('dataBackgroundColor') // deprecated option
-        || dataZoomModel.get('borderColor'),
+        // deprecated option
+        stroke: dataZoomModel.get('dataBackgroundColor') || dataZoomModel.get('borderColor'),
         lineWidth: DEFAULT_FRAME_BORDER_WIDTH,
         fill: 'rgba(0,0,0,0)'
       }

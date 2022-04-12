@@ -170,10 +170,10 @@ export function applyVisual<VisualState extends string, Scope>(
             : index;
 
         const rawDataItem = data.getRawDataItem(dataIndex);
-        // Consider performance
+
         // @ts-ignore
         if (rawDataItem && rawDataItem.visualMap === false) {
-            return;
+            valueOrIndex = NaN;
         }
 
         const valueState = getValueState.call(scope, valueOrIndex);
@@ -228,15 +228,14 @@ export function incrementalApplyVisual<VisualState extends string>(
             while ((dataIndex = params.next()) != null) {
                 const rawDataItem = data.getRawDataItem(dataIndex);
 
-                // Consider performance
-                // @ts-ignore
-                if (rawDataItem && rawDataItem.visualMap === false) {
-                    continue;
-                }
+                let value: ParsedValue = NaN;
 
-                const value = dim != null
+                // @ts-ignore
+                if (!rawDataItem || rawDataItem.visualMap !== false) {
+                  value = dim != null
                     ? store.get(dimIndex, dataIndex)
                     : dataIndex;
+                }
 
                 const valueState = getValueState(value);
                 const mappings = visualMappings[valueState];

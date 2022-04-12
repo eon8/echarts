@@ -21120,7 +21120,7 @@
 
       DataStore.prototype.initData = function (provider, inputDimensions, dimValueGetter) {
         if ("development" !== 'production') {
-          assert(isFunction(provider.getItem) && isFunction(provider.count), 'Inavlid data provider.');
+          assert(isFunction(provider.getItem) && isFunction(provider.count), 'Invalid data provider.');
         }
 
         this._provider = provider; // Clear
@@ -38967,7 +38967,11 @@
 
           if (isAreaChart) {
             polygon = this._newPolygon(points, stackedOnPoints);
-          } // NOTE: Must update _endLabel before setClipPath.
+          } // If areaStyle is removed
+          else if (polygon) {
+              lineGroup.remove(polygon);
+              polygon = this._polygon = null;
+            } // NOTE: Must update _endLabel before setClipPath.
 
 
           if (!isCoordSysPolar) {
